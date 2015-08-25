@@ -44,6 +44,11 @@ dataingest <- function(data){
     
   }
   
+  sum.factor <- function(x, breaks = 31){
+    
+    
+  }
+  
   
   
   
