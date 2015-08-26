@@ -1,6 +1,6 @@
 
 ## ------------------------------------------------------------------
-## ---- load packages
+## ---- load required packages
 ## ------------------------------------------------------------------
 package.manager <- function(pkgs){
   loaded <- sapply(pkgs, function(pkg){
@@ -18,31 +18,20 @@ package.manager <- function(pkgs){
   
   invisible(all(loaded))
 }
-
 package.manager(c('dplyr', 'jsonlite'))
 
-## ------------------------------------------------------------------
-## --- do data ingest work
-## ------------------------------------------------------------------
-dataingest <- function(data){
 
-  ## ---------------------------------------------------------------- 
-  ## ---- data ingest functions
-  ## ----------------------------------------------------------------
-  
-  ## ---- produces json object
-  ## { histogram: [breaks [ .. ], counts [ ..] ], 
-  ##   summary: [labels [ .. ], values[ .. ]] }
+## ------------------------------------------------------------------
+## ---- do data summary work
+## ------------------------------------------------------------------
+data.summary <- function(data){
+
   numeric.summary <- function(x, type = 'numeric'){
-    
-    breaks <- 31
-    
-    bars <- hist(x, plot = F, breaks = breaks)
+    bars <- hist(x, plot = F)
     sum <- as.matrix(summary(x))
-    
     result <- list(
       type = type,
-      histogram = list(breaks = bars$breaks, counts = bars$counts),
+      plot = list(x = bars$breaks, y = bars$counts),
       summary = list(labels = rownames(sum), values = as.numeric(sum)),
       missing = list(total = length(x), na = sum(is.na(x)))
     )
@@ -58,10 +47,10 @@ dataingest <- function(data){
   }
   
   factor.summary <- function(x, type = 'factor'){
-    
     sum <- as.matrix(summary(x))
     result <- list(
       type = 'factor',
+      plot = list(x = rownames(sum), y = as.numeric(sum)),
       summary = list(labels = rownames(sum), values = as.numeric(sum)),
       missing = list(total = length(x), na = sum(is.na(x)))
     )
@@ -80,10 +69,6 @@ dataingest <- function(data){
         'logical' = logical.summary(x)
       )
   }
-  
-  ## ---------------------------------------------------------------- 
-  ## ---- do work
-  ## ----------------------------------------------------------------
   
   toJSON(lapply(data, ingest))
 
